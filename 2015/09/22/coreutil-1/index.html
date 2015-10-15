@@ -1,0 +1,853 @@
+<!doctype html>
+<html class="theme-next use-motion theme-next-mist">
+<head>
+  
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.4.5.1"/>
+
+
+
+
+  <meta name="keywords" content="coreutil,linux,source," />
+
+
+
+
+
+  <link rel="shorticon icon" type="image/x-icon" href="/favicon.ico?v=0.4.5.1" />
+
+
+<meta name="description" content="coreutil是什么coreutil全称是GNU core utilities, 是linux下一些基础工具/命令的实现，包括像耳熟能详的ls, cat, rm等等。这些工具有一些是对部分系统调用的封装，还有一些是简单的文本处理等等。APUE在介绍系统调用时，有时就会编写一些类似的小工具做为示例，比如介绍文件目录相关内容时，会实现一个简单的ls。但是实际使用的ls，会非常复杂，支持众多的命令行选">
+<meta property="og:type" content="article">
+<meta property="og:title" content="coreutil 阅读笔记(一)">
+<meta property="og:url" content="http://yoursite.com/2015/09/22/coreutil-1/index.html">
+<meta property="og:site_name" content="read, think, and think different">
+<meta property="og:description" content="coreutil是什么coreutil全称是GNU core utilities, 是linux下一些基础工具/命令的实现，包括像耳熟能详的ls, cat, rm等等。这些工具有一些是对部分系统调用的封装，还有一些是简单的文本处理等等。APUE在介绍系统调用时，有时就会编写一些类似的小工具做为示例，比如介绍文件目录相关内容时，会实现一个简单的ls。但是实际使用的ls，会非常复杂，支持众多的命令行选">
+<meta property="og:image" content="http://yoursite.com/img/blk_rate.png">
+<meta property="og:updated_time" content="2015-09-24T09:18:03.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="coreutil 阅读笔记(一)">
+<meta name="twitter:description" content="coreutil是什么coreutil全称是GNU core utilities, 是linux下一些基础工具/命令的实现，包括像耳熟能详的ls, cat, rm等等。这些工具有一些是对部分系统调用的封装，还有一些是简单的文本处理等等。APUE在介绍系统调用时，有时就会编写一些类似的小工具做为示例，比如介绍文件目录相关内容时，会实现一个简单的ls。但是实际使用的ls，会非常复杂，支持众多的命令行选">
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'always'
+  };
+</script>
+
+  <title> coreutil 阅读笔记(一) | read, think, and think different </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><h1 class="site-meta">
+  <span class="logo-line-before"><i></i></span>
+  <a href="/" class="brand" rel="start">
+      <span class="logo">
+        <i class="icon-next-logo"></i>
+      </span>
+      <span class="site-title">read, think, and think different</span>
+  </a>
+  <span class="logo-line-after"><i></i></span>
+</h1>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu menu-left">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon icon-next-home"></i> <br />
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            <i class="menu-item-icon icon-next-archives"></i> <br />
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            <i class="menu-item-icon icon-next-tags"></i> <br />
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            <i class="menu-item-icon icon-next-about"></i> <br />
+            关于
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <form class="site-search-form">
+    <input type="text" id="st-search-input" class="st-search-input st-default-search-input" />
+  </form>
+
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', 'QL2MAt1HRaYZrpVoWD5N','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content"> 
+
+  <div id="posts" class="posts-expand">
+    
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              coreutil 阅读笔记(一)
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          发表于
+          <time itemprop="dateCreated" datetime="2015-09-22T23:42:16+08:00" content="2015-09-22">
+            2015-09-22
+          </time>
+        </span>
+
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2015/09/22/coreutil-1/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2015/09/22/coreutil-1/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><h2 id="coreutil&#x662F;&#x4EC0;&#x4E48;">coreutil&#x662F;&#x4EC0;&#x4E48;</h2><p>coreutil&#x5168;&#x79F0;&#x662F;<a href="http://www.gnu.org/software/coreutils/coreutils.html" target="_blank" rel="external">GNU core utilities</a>, &#x662F;linux&#x4E0B;&#x4E00;&#x4E9B;&#x57FA;&#x7840;&#x5DE5;&#x5177;/&#x547D;&#x4EE4;&#x7684;&#x5B9E;&#x73B0;&#xFF0C;&#x5305;&#x62EC;&#x50CF;&#x8033;&#x719F;&#x80FD;&#x8BE6;&#x7684;ls, cat, rm&#x7B49;&#x7B49;&#x3002;&#x8FD9;&#x4E9B;&#x5DE5;&#x5177;&#x6709;&#x4E00;&#x4E9B;&#x662F;&#x5BF9;&#x90E8;&#x5206;&#x7CFB;&#x7EDF;&#x8C03;&#x7528;&#x7684;&#x5C01;&#x88C5;&#xFF0C;&#x8FD8;&#x6709;&#x4E00;&#x4E9B;&#x662F;&#x7B80;&#x5355;&#x7684;&#x6587;&#x672C;&#x5904;&#x7406;&#x7B49;&#x7B49;&#x3002;<a href="http://www.amazon.cn/dp/B00KMR129E" target="_blank" rel="external">APUE</a>&#x5728;&#x4ECB;&#x7ECD;&#x7CFB;&#x7EDF;&#x8C03;&#x7528;&#x65F6;&#xFF0C;&#x6709;&#x65F6;&#x5C31;&#x4F1A;&#x7F16;&#x5199;&#x4E00;&#x4E9B;&#x7C7B;&#x4F3C;&#x7684;&#x5C0F;&#x5DE5;&#x5177;&#x505A;&#x4E3A;&#x793A;&#x4F8B;&#xFF0C;&#x6BD4;&#x5982;&#x4ECB;&#x7ECD;&#x6587;&#x4EF6;&#x76EE;&#x5F55;&#x76F8;&#x5173;&#x5185;&#x5BB9;&#x65F6;&#xFF0C;&#x4F1A;&#x5B9E;&#x73B0;&#x4E00;&#x4E2A;&#x7B80;&#x5355;&#x7684;ls&#x3002;&#x4F46;&#x662F;&#x5B9E;&#x9645;&#x4F7F;&#x7528;&#x7684;ls&#xFF0C;&#x4F1A;&#x975E;&#x5E38;&#x590D;&#x6742;&#xFF0C;&#x652F;&#x6301;&#x4F17;&#x591A;&#x7684;&#x547D;&#x4EE4;&#x884C;&#x9009;&#x9879;&#xFF0C;&#x4E8B;&#x5B9E;&#x4E0A;&#xFF0C;coreutil&#x91CC;ls&#x5B9E;&#x73B0;&#x5305;&#x542B;&#x4E86;&#x5C06;&#x8FD1;5000&#x884C;&#x7684;&#x4EE3;&#x7801;&#x3002;</p>
+<a id="more"></a>
+<p>&#x51B3;&#x5B9A;&#x8BFB;&#x8FD9;&#x90E8;&#x5206;&#x4EE3;&#x7801;&#x4E3B;&#x8981;&#x662F;&#x51FA;&#x4E8E;&#x51E0;&#x4E2A;&#x539F;&#x56E0;</p>
+<ul>
+<li>&#x719F;&#x6089;&#x5E38;&#x89C1;&#x7CFB;&#x7EDF;&#x8C03;&#x7528;&#x7684;&#x4F7F;&#x7528;&#xFF0C;&#x4E0D;&#x7BA1;&#x662F;<a href="http://www.amazon.cn/dp/B00KMR129E" target="_blank" rel="external">APUE</a> &#x8FD8;&#x662F;<a href="http://www.amazon.cn/dp/B00HLA8TYG" target="_blank" rel="external">TLPI</a> ,&#x6BD5;&#x7ADF;&#x8FD8;&#x662F;&#x624B;&#x518C;&#x7C7B;&#x578B;&#x7684;&#xFF0C;&#x8BFB;&#x8D77;&#x6765;&#x6BD4;&#x8F83;&#x67AF;&#x71E5;&#x3002;</li>
+<li>&#x501F;&#x9274;&#x5B66;&#x4E60;&#xFF0C;&#x4E0D;&#x7BA1;&#x662F;ls,rm,&#x8FD8;&#x662F;pwd&#xFF0C;date&#x7B49;&#x7B49;&#xFF0C;&#x6BCF;&#x5929;&#x90FD;&#x4F1A;&#x88AB;&#x5404;&#x79CD;&#x4F7F;&#x7528;&#xFF0C;&#x540C;&#x65F6;&#x652F;&#x6301;&#x4F17;&#x591A;&#x9009;&#x9879;&#xFF0C;&#x8FD9;&#x4E9B;&#x547D;&#x4EE4;&#x7684;&#x5B9E;&#x73B0;&#x5E94;&#x8BE5;&#x662F;&#x6BD4;&#x8F83;&#x7CBE;&#x5DE7;&#x7684;&#x3002;</li>
+<li>&#x987A;&#x4FBF;&#x56DE;&#x987E;&#x4E0B;&#x8FD9;&#x4E9B;&#x547D;&#x4EE4;&#x7684;&#x5E38;&#x89C1;&#x4F7F;&#x7528;&#x65B9;&#x5F0F;/&#x9009;&#x9879;&#xFF0C;&#x5199;shell&#x7684;&#x65F6;&#x5019;&#x53EF;&#x80FD;&#x4E5F;&#x4F1A;&#x66F4;&#x5F97;&#x5FC3;&#x5E94;&#x624B;&#x4E9B;&#x3002;</li>
+</ul>
+<h2 id="&#x51C6;&#x5907;&#x5DE5;&#x4F5C;">&#x51C6;&#x5907;&#x5DE5;&#x4F5C;</h2><p>&#x901A;&#x8FC7;&#x4EE5;&#x4E0B;&#x65B9;&#x5F0F;&#x83B7;&#x5F97;coreutil&#x6700;&#x65B0;&#x7684;&#x6E90;&#x7801;</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git clone <span class="string">git:</span><span class="comment">//git.sv.gnu.org/coreutils</span></span><br></pre></td></tr></table></figure>
+<p>coreutils/src&#x76EE;&#x5F55;&#x4E0B;&#xFF0C;&#x5305;&#x542B;&#x4E86;120&#x591A;&#x4E2A;.c&#x6587;&#x4EF6;&#xFF0C;&#x57FA;&#x672C;&#x4E0A;&#x6BCF;&#x4E00;&#x4E2A;.c&#x5BF9;&#x5E94;&#x4E8E;&#x4E00;&#x4E2A;&#x547D;&#x4EE4;&#xFF0C;&#x6BD4;&#x5982;ls.c&#x5BF9;&#x5E94;ls&#x7684;&#x5B9E;&#x73B0;&#xFF0C;pwd.c&#x5BF9;&#x5E94;pwd&#x7684;&#x5B9E;&#x73B0;&#x3002;&#x5171;&#x540C;&#x4F9D;&#x8D56;&#x4E00;&#x4E9B;&#x57FA;&#x7840;&#x7684;&#x5934;&#x6587;&#x4EF6;&#x3002;&#x5404;&#x4E2A;.c&#x4E4B;&#x524D;&#x57FA;&#x672C;&#x4E0A;&#x662F;&#x5F7C;&#x6B64;&#x72EC;&#x7ACB;&#x7684;&#xFF0C;&#x6CA1;&#x6709;&#x4F9D;&#x8D56;&#x3002;&#x8BFB;&#x8D77;&#x6765;&#x5F88;&#x65B9;&#x4FBF;&#x3002;</p>
+<p>&#x7F16;&#x8BD1;&#x8FD9;&#x4E9B;&#x6587;&#x4EF6;&#x4E5F;&#x975E;&#x5E38;&#x7B80;&#x5355;, configure&#x4E4B;&#x540E;make&#x5373;&#x53EF;&#xFF0C;src&#x76EE;&#x5F55;&#x4E0B;&#x4F1A;&#x751F;&#x6210;&#x4E00;&#x5806;&#x53EF;&#x6267;&#x884C;&#x6587;&#x4EF6;&#x3002;&#x76F4;&#x63A5;&#x8FD0;&#x884C;&#x5373;&#x53EF;&#x3002;</p>
+<p>&#x7531;&#x4E8E;&#x6587;&#x4EF6;&#x4E4B;&#x95F4;&#x5F7C;&#x6B64;&#x72EC;&#x7ACB;&#xFF0C;&#x6CA1;&#x6709;&#x592A;&#x591A;&#x7684;&#x4F9D;&#x8D56;&#xFF0C;&#x90A3;&#x5C31;&#x6309;&#x7167;&#x5B57;&#x6BCD;&#x5E8F;&#x6765;&#x5427;&#x3002;</p>
+<p>&#x5148;&#x770B;&#x8FD9;&#x51E0;&#x4E2A;</p>
+<ul>
+<li><a href="http://lingrok.org/xref/coreutils/src/base64.c" target="_blank" rel="external">base64.c</a></li>
+<li><a href="http://lingrok.org/xref/coreutils/src/basename.c" target="_blank" rel="external">basename.c</a></li>
+<li><a href="http://lingrok.org/xref/coreutils/src/cat.c" target="_blank" rel="external">cat.c</a></li>
+<li><a href="http://lingrok.org/xref/coreutils/src/chcon.c" target="_blank" rel="external">chcon.c</a></li>
+<li><a href="http://lingrok.org/xref/coreutils/src/chgrp.c" target="_blank" rel="external">chgrp.c</a></li>
+<li><a href="http://lingrok.org/xref/coreutils/src/chmod.c" target="_blank" rel="external">chmod.c</a></li>
+<li><a href="http://lingrok.org/xref/coreutils/src/chown.c" target="_blank" rel="external">chown.c</a></li>
+</ul>
+<h2 id="base64c">base64.c</h2><h3 id="&#x4F5C;&#x7528;">&#x4F5C;&#x7528;</h3><p>&#x8FD9;&#x4E2A;&#x7F16;&#x8BD1;&#x540E;&#x751F;&#x6210;&#x4E00;&#x4E2A;base64&#x7684;&#x4E8C;&#x8FDB;&#x5236;&#x6587;&#x4EF6;&#xFF0C;&#x4F5C;&#x7528;&#x662F;&#x8FDB;&#x884C;base64&#x7F16;&#x7801;/&#x89E3;&#x7801;&#x5DE5;&#x4F5C;</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[bian@dev:src ] $ ./base64 base64.c |head</span><br><span class="line">LyogQmFzZTY0IGVuY29kZS9kZWNvZGUgc3RyaW5ncyBvciBmaWxlcy4KICAgQ29weXJpZ2h0IChD</span><br><span class="line">KSAyMDA0LTIwMTQgRnJlZSBTb2Z0d2FyZSBGb3VuZGF0aW9uLCBJbmMuCgogICBUaGlzIGZpbGUg</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+<p>base64&#x662F;&#x4E00;&#x79CD;&#x7F16;&#x7801;&#x6807;&#x51C6;&#xFF0C;&#x4E3B;&#x8981;&#x76EE;&#x7684;&#x5C31;&#x662F;&#x628A;&#x4E00;&#x6BB5;&#x5185;&#x5BB9;&#xFF08;&#x5305;&#x62EC;&#x6587;&#x672C;&#xFF0C;&#x5305;&#x62EC;&#x4E8C;&#x8FDB;&#x5236;&#xFF09;&#xFF0C;&#x53D8;&#x6210;&#x4E00;&#x79CD;&#x201D;&#x6587;&#x672C;&#x201D;&#x683C;&#x5F0F;&#xFF0C;&#x7F16;&#x7801;&#x4E4B;&#x540E;&#xFF0C;&#x4EC5;&#x4F1A;&#x5305;&#x542B;A-Z a-z 0-9 + /&#x4EE5;&#x53CA; = &#x8FD9;65&#x79CD;&#x5B57;&#x7B26;&#x6784;&#x6210;&#x7684;&#x5E8F;&#x5217;&#x3002;A-Z a-z 0-9 + / &#x8FD9;&#x4E9B;&#x5B57;&#x7B26;&#x5206;&#x522B;&#x5BF9;&#x5E94;&#x4E8E;0-63&#x8FD9;64&#x4E2A;&#x4F4D;&#x7F6E;&#x3002;=&#x53EA;&#x4F1A;&#x7528;&#x4E8E;&#x6700;&#x540E;&#x7684;&#x586B;&#x5145;</p>
+<p>&#x5177;&#x4F53;&#x7684;&#x7F16;&#x7801;&#x65B9;&#x5F0F;&#x5F88;&#x7B80;&#x5355;&#xFF0C;&#x5C06;&#x8F93;&#x5165;&#x7684;&#x5B57;&#x7B26;&#x6D41;&#xFF0C;&#x6BCF;3&#x4E2A;Byte&#x4E00;&#x7EC4;&#xFF0C;&#x6700;&#x540E;&#x4E00;&#x7EC4;&#x5982;&#x679C;&#x4E0D;&#x8DB3;3&#x4E2A;Byte&#xFF0C;&#x7528;0&#x8865;&#x9F50;&#xFF08;&#x4E0D;&#x662F;&#x6570;&#x5B57;0&#xFF0C;&#x662F;&#x2019;\0&#x2019;)&#x3002;3&#x4E2A;Byte&#x5BF9;&#x5E94;24&#x4E2A;bit&#xFF0C;&#x5C06;&#x8FD9;24&#x4E2A;bit&#x4ECE;&#x9AD8;&#x4F4D;&#x5230;&#x4F4E;&#x4F4D;&#x91CD;&#x65B0;&#x5206;&#x6210;4&#x4E2A;&#x90E8;&#x5206;&#xFF08;&#x6BCF;&#x4E2A;&#x90E8;&#x5206;&#x5305;&#x62EC;6bit&#xFF09;&#xFF0C;&#x4E8E;&#x662F;&#x6BCF;&#x4E2A;&#x90E8;&#x5206;&#xFF08;6&#x4E2A;bit&#xFF09;&#x7684;&#x5341;&#x8FDB;&#x5236;&#x843D;&#x5728;&#x4E86;[0-63]&#x8FD9;&#x4E2A;&#x8303;&#x56F4;&#x5185;&#xFF0C;&#x6B63;&#x597D;&#x5BF9;&#x5E94;&#x524D;&#x9762;&#x7684;&#x7801;&#x8868;&#xFF0C;&#x4ECE;&#x7801;&#x8868;&#x4E2D;&#x53D6;&#x51FA;&#x76F8;&#x5E94;&#x7684;&#x5B57;&#x7B26;&#x5373;&#x53EF;&#x3002;&#x6700;&#x540E;&#x586B;&#x5145;&#x7684;&#x2019;\0&#x2019;&#x7528;=&#x7F16;&#x7801;</p>
+<p>&#x6BD4;&#x5982;&#x539F;&#x59CB;&#x5185;&#x5BB9;&#x662F;&#x4E24;&#x4E2A;&#x5B57;&#x7B26;&#xFF0C;&#x2019;ab&#x2019;&#xFF08;&#x4E0D;&#x5305;&#x542B;&#x4E24;&#x8FB9;&#x5F15;&#x53F7;&#xFF09;&#xFF0C;&#x7F16;&#x7801;&#x8FC7;&#x7A0B;&#x5982;&#x4E0B;</p>
+<ol>
+<li>&#x586B;&#x5145;1&#x4E2A;0&#xFF0C;&#x5373;&#x2019;a&#x2019;,&#x2019;b&#x2019;,&#x2019;\0&#x2019;</li>
+<li>&#x539F;&#x59CB;&#x5185;&#x5BB9; 97 98 0 &#x53D8;&#x6210;24bit 01100001 01100010 00000000</li>
+<li>&#x91CD;&#x65B0;&#x5207;&#x6210;4&#x4E2A;&#x90E8;&#x5206;, 011000 010110 001000 000000</li>
+<li>&#x5F97;&#x5230;&#x76F8;&#x5E94;&#x7684;&#x4F4D;&#x7F6E;&#xFF0C;24 22 8 0</li>
+<li>&#x67E5;&#x7801;&#x8868;&#xFF0C;&#x5F97;&#x5230;&#x7F16;&#x7801;&#x540E;&#x7684;&#x7ED3;&#x679C; YWIA</li>
+<li>&#x6700;&#x540E;&#x7684;&#x2019;\0&#x2019;&#x7528;=&#x4EE3;&#x66FF;&#xFF0C;&#x5373;&#x6700;&#x7EC8;&#x7ED3;&#x679C;&#x4E3A; YWI=</li>
+</ol>
+<p>&#x7C7B;&#x4F3C;&#x7684;&#xFF0C;&#x5355;&#x4E2A;a&#x7F16;&#x7801;&#x540E;&#xFF0C;&#x7ED3;&#x679C;&#x662F;YQ==</p>
+<h3 id="&#x5B9E;&#x73B0;">&#x5B9E;&#x73B0;</h3><ul>
+<li><p>&#x4E00;&#x4E9B;&#x901A;&#x7528;&#x7684;&#x521D;&#x59CB;&#x5316;&#x5DE5;&#x4F5C;</p>
+<ol>
+<li>initialize_main(&amp;argc, &amp;argv), &#x8FD9;&#x4E2A;&#x5B8F;&#x5B9A;&#x4E49;&#x5728;src/system.h&#x91CC;&#xFF0C;&#x4E00;&#x822C;&#x6CA1;&#x4EC0;&#x4E48;&#x7528;&#xFF0C;&#x53EF;&#x80FD;&#x5728;&#x7279;&#x5B9A;&#x7684;VMS&#x91CC;&#x8FB9;&#x624D;&#x4F1A;&#x7528;&#x5230;</li>
+<li>set_program_name(argv[0]), libtools&#x751F;&#x6210;&#x7684;&#x4E34;&#x65F6;&#x7684;&#x53EF;&#x6267;&#x884C;&#x6587;&#x4EF6;&#x540D;&#xFF0C;&#x6709;&#x65F6;&#x4F1A;&#x5E26;&#x4E0A;/.lib&#x6216;&#x8005;/.libs/lt-&#x7684;&#x524D;&#x7F00;&#xFF0C;&#x53BB;&#x6389;&#x8FD9;&#x4E9B;&#x524D;&#x7F00;&#x3002;</li>
+<li>setlocale, bindtextdomain, textdomain &#x4E00;&#x4E9B;&#x672C;&#x5730;&#x5316;&#x7684;&#x8BBE;&#x7F6E;&#x3002;linux&#x4F7F;&#x7528;locale&#x6765;&#x8FDB;&#x884C;&#x672C;&#x5730;&#x5316;&#x7684;&#x8BBE;&#x7F6E;&#x3002;&#x9762;&#x5411;&#x7528;&#x6237;&#x7684;&#x8F93;&#x51FA;&#xFF0C;&#x7528;_&#x51FD;&#x6570;&#x5305;&#x88F9;&#x8D77;&#x6765;(&#x5B9E;&#x9645;&#x662F;gettext)&#xFF0C;src/po&#x76EE;&#x5F55;&#x4E0B;&#xFF0C;&#x5B9A;&#x4E49;&#x4E86;&#x5404;&#x79CD;&#x8F93;&#x51FA;&#x5BF9;&#x5E94;&#x7684;&#x5404;&#x79CD;&#x8BED;&#x8A00;&#x7684;&#x8868;&#x793A;&#x3002;</li>
+<li>atexit(close_stdout), exit&#x65F6;&#x5173;&#x95ED;stdout</li>
+</ol>
+</li>
+<li><p>&#x547D;&#x4EE4;&#x884C;&#x53C2;&#x6570;&#x5904;&#x7406;, </p>
+<ol>
+<li>-d decode=true</li>
+<li>-w &#x8BBE;&#x7F6E;&#x6253;&#x5370;&#x65F6;&#x4E00;&#x884C;&#x591A;&#x5C11;&#x5B57;&#x7B26;</li>
+<li>-i decode&#x65F6;&#x662F;&#x5426;&#x8981;&#x5FFD;&#x7565;&#x975E;base64&#x8868;&#x91CC;&#x7684;&#x5B57;&#x7B26;</li>
+<li>&#x5F97;&#x5230;&#x6587;&#x4EF6;&#x540D;&#xFF0C;&#x5982;&#x679C;&#x6CA1;&#x6709;&#x6587;&#x4EF6;&#x540D;&#xFF0C;&#x6216;&#x8005;&#x6587;&#x4EF6;&#x540D;&#x662F;-, &#x5219;&#x4ECE;stdin&#x8BFB;&#x53D6;</li>
+<li>fadvise, &#x63D0;&#x793A;kernel&#xFF0C;&#x51C6;&#x5907;&#x8BFB;&#x6587;&#x4EF6;&#x4E86;&#xFF0C;&#x987A;&#x5E8F;&#x8BFB;&#x3002;</li>
+<li>&#x5F00;&#x59CB;decode&#x6216;&#x8005;encode, &#x8FDB;&#x5165;&#x771F;&#x6B63;&#x7684;&#x5904;&#x7406;&#x903B;&#x8F91;<ol>
+<li>do_decode(input_fh, stdout, ignore_garbage)</li>
+<li>do_encode(input_fh, stdout, wrap_column)</li>
+</ol>
+</li>
+</ol>
+</li>
+<li><p>do_encode</p>
+<ol>
+<li>&#x6BCF;&#x6B21;&#x5C1D;&#x8BD5;&#x8BFB;ENC_BLOCKSIZE(30KB)&#x7684;&#x6570;&#x636E;, &#x663E;&#x7136;&#x6BCF;&#x6B21;&#x8BFB;&#x7684;&#x957F;&#x5EA6;&#x5E94;&#x5C3D;&#x53EF;&#x80FD;&#x662F;3&#x4E2A;&#x500D;&#x6570;&#xFF0C;&#x540C;&#x65F6;&#x4E0D;&#x80FD;&#x592A;&#x5C11;&#x3002;</li>
+<li>&#x5982;&#x679C;&#x8BFB;&#x5230;&#x4E86;&#x81F3;&#x5C11;1&#x4E2A;Byte<ol>
+<li>base64_encode(inbuf, inlen, outbuf, outlen), $outlenn = (inlen+2)/3 *4$</li>
+<li>wrap_write, &#x683C;&#x5F0F;&#x5316;&#x8F93;&#x51FA;</li>
+</ol>
+</li>
+<li><p>&#x5982;&#x679C;&#x53D1;&#x73B0;inlen = outlen/4*3, &#x5373;&#x4E0D;&#x9700;&#x8981;&#x8865;0&#x7684;&#x60C5;&#x5F62;, &#x8FD9;&#x4E2A;&#x5904;&#x7406;&#x5C31;&#x7B80;&#x5355;&#x4E86;(b64c&#x5C31;&#x662F;&#x90A3;&#x4E2A;&#x7801;&#x8868;)</p>
+ <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">void</span></span><br><span class="line"><span class="title">base64_encode_fast</span> <span class="params">(<span class="keyword">const</span> <span class="keyword">char</span> *<span class="keyword">restrict</span> in, size_t inlen, <span class="keyword">char</span> *<span class="keyword">restrict</span> out)</span></span><br><span class="line"></span>{</span><br><span class="line">  <span class="keyword">while</span> (inlen)</span><br><span class="line">    {</span><br><span class="line">      *out++ = b64c[to_uchar (in[<span class="number">0</span>]) &gt;&gt; <span class="number">2</span>];</span><br><span class="line">      *out++ = b64c[((to_uchar (in[<span class="number">0</span>]) &lt;&lt; <span class="number">4</span>) + (to_uchar (in[<span class="number">1</span>]) &gt;&gt; <span class="number">4</span>)) &amp; <span class="number">0x3f</span>];</span><br><span class="line">      *out++ = b64c[((to_uchar (in[<span class="number">1</span>]) &lt;&lt; <span class="number">2</span>) + (to_uchar (in[<span class="number">2</span>]) &gt;&gt; <span class="number">6</span>)) &amp; <span class="number">0x3f</span>];</span><br><span class="line">      *out++ = b64c[to_uchar (in[<span class="number">2</span>]) &amp; <span class="number">0x3f</span>];</span><br><span class="line"></span><br><span class="line">      inlen -= <span class="number">3</span>;              </span><br><span class="line">      in += <span class="number">3</span>;                 </span><br><span class="line">    }</span><br><span class="line">}</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>&#x5426;&#x5219;&#x5904;&#x7406;&#x7684;&#x65F6;&#x5019;&#xFF0C;&#x8003;&#x8651;&#x4E86;outbuf&#x91CC;&#x7A7A;&#x95F4;&#x4E0D;&#x591F;&#x7684;&#x60C5;&#x5F62;&#x3002;&#x7A7A;&#x95F4;&#x4E0D;&#x591F;&#x4E86;&#xFF0C;&#x7ACB;&#x523B;&#x9000;&#x51FA;&#xFF0C;&#x907F;&#x514D;&#x7F13;&#x51B2;&#x6EA2;&#x51FA;&#xFF08;&#x867D;&#x7136;outlen&#x5176;&#x5B9E;&#x662F;&#x80FD;&#x591F;&#x63D0;&#x524D;&#x7B97;&#x597D;&#x7684;&#xFF09;&#x3002;</p>
+<ol>
+<li>&#x8FD8;&#x662F;3&#x4E2A;&#x8F93;&#x5165;&#x5B57;&#x7B26;&#x4E00;&#x7EC4;</li>
+<li>&#x6BCF;&#x7EC4;&#x8F93;&#x51FA;&#x7684;&#x524D;&#x4E24;&#x4E2A;&#x5B57;&#x7B26;&#x4E0D;&#x7528;&#x8003;&#x8651;=&#x60C5;&#x5F62;</li>
+<li>&#x4ECE;&#x4E09;&#x4E2A;&#x5B57;&#x7B26;&#xFF08;&#x5BF9;&#x5E94;&#x8F93;&#x5165;&#x7684;&#x7B2C;&#x4E8C;&#x4E2A;&#x5B57;&#x7B26;&#xFF09;&#xFF0C;&#x9700;&#x8981;&#x8003;&#x8651;&#x8865;0&#x7684;&#x60C5;&#x5F62;</li>
+<li>&#x5168;&#x90E8;&#x7ED3;&#x675F;&#x540E;&#xFF0C;&#x5982;&#x679C;outbuf&#x91CC;&#x8FD8;&#x6709;&#x7A7A;&#x95F4;&#xFF0C;&#x8865;&#x4E0A;&#x6700;&#x540E;&#x7684;&#x5B57;&#x7B26;&#x4E32;&#x7ED3;&#x5C3E;&#x7684;&#x2019;\0&#x2019;</li>
+</ol>
+</li>
+<li>&#x4ECE;outbuf&#x91CC;&#x8F93;&#x51FA;<ol>
+<li>wrap_column = 0, &#x7B80;&#x5355;&#x60C5;&#x5F62;&#xFF0C;&#x76F4;&#x63A5;fwrite(outbuf, 1, len, stdout) &#x5373;&#x53EF;</li>
+<li>&#x5426;&#x5219;&#xFF0C;&#x6BCF;&#x884C;&#x8F93;&#x51FA;wrap_column&#x4E2A;&#x5B57;&#x7B26;&#xFF0C;&#x76F4;&#x81F3;&#x5B8C;&#x6210;</li>
+</ol>
+</li>
+</ol>
+</li>
+<li>do_decode<ol>
+<li>&#x5224;&#x65AD;&#x662F;&#x5426;&#x9700;&#x8981;&#x5FFD;&#x7565;&#x975E;base64&#x7684;&#x5B57;&#x7B26;(ignore_garbage), &#x5982;&#x679C;&#x662F;&#xFF0C;&#x770B;&#x5230;&#x4E00;&#x4E2A;&#x975E;&#x6CD5;&#x5B57;&#x7B26;&#xFF0C;&#x5219;&#x8DF3;&#x8FC7;&#x8FD9;&#x4E2A;&#x5B57;&#x7B26;&#xFF0C;&#x5C06;&#x5269;&#x4E0B;&#x7684;&#x90E8;&#x5206;memmove&#x8FC7;&#x6765;&#x3002;&#x8FD9;&#x4E2A;&#x5B9E;&#x73B0;&#x662F;&#x6709;&#x70B9;&#x602A;&#x5F02;&#x7684;&#x3002;&#x56E0;&#x4E3A;&#x5982;&#x679C;&#x6709;N&#x4E2A;&#x975E;&#x6CD5;&#x5B57;&#x7B26;&#xFF0C;&#x5C82;&#x4E0D;&#x662F;&#x8981;memmove N&#x6B21;&#xFF1F;&#x76F4;&#x63A5;&#x4E00;&#x904D;&#x626B;&#x63CF;&#x5B8C;&#x6807;&#x8BB0;&#x4F4F;&#xFF0C;&#x4E00;&#x6B21;&#x6027;move&#x4E0D;&#x4F1A;&#x66F4;&#x5FEB;&#x4E9B;&#x5417;&#xFF1F;&#x8FD9;&#x4E2A;&#x6211;&#x5728;Stackoverflow&#x4E0A;<a href="http://stackoverflow.com/questions/32731694/on-implementation-of-base64-decode-in-coreutil" target="_blank" rel="external">&#x63D0;&#x4E86;&#x4E00;&#x4E2A;&#x95EE;&#x9898;</a> &#x671F;&#x671B;&#x6709;&#x4EBA;&#x80FD;&#x591F;&#x89E3;&#x91CA;&#x4E0B;&#x539F;&#x56E0;&#x3002;</li>
+<li>&#x8C03;&#x7528;base64_decode_ctx&#x5B8C;&#x6210;&#x5B9E;&#x9645;&#x7684;&#x5DE5;&#x4F5C;<ol>
+<li>&#x8C03;&#x7528;decode_4, &#x6BCF;&#x6B21;decode4&#x4E2A;&#x5B57;&#x7B26;, decode&#x7684;&#x903B;&#x8F91;&#x548C;encode&#x6B63;&#x597D;&#x76F8;&#x53CD;, &#x6CE8;&#x610F;&#x7ED3;&#x5C3E;=&#x7684;&#x5904;&#x7406;</li>
+</ol>
+</li>
+<li>&#x5176;&#x4ED6;&#x6CA1;&#x6709;&#x592A;&#x591A;&#x7279;&#x6B8A;&#x7684;</li>
+</ol>
+</li>
+</ul>
+<ul>
+<li>&#x4E00;&#x4E9B;&#x6536;&#x5C3E;&#x7684;&#x5DE5;&#x4F5C;</li>
+</ul>
+<h2 id="basenamec">basename.c</h2><p>&#x8FD9;&#x4E2A;&#x5BF9;&#x5E94;&#x4E8E;basename&#x547D;&#x4EE4;&#xFF0C;&#x4F5C;&#x7528;&#x5C31;&#x662F;&#x5BF9;&#x4E8E;&#x4E00;&#x4E2A;&#x5305;&#x542B;&#x8DEF;&#x5F84;&#x7684;&#x6587;&#x4EF6;&#x540D;&#xFF0C;&#x79FB;&#x9664;&#x8DEF;&#x5F84;&#xFF0C;&#x4E5F;&#x6309;&#x7167;&#x6839;&#x636E;&#x9009;&#x9879;&#x53EF;&#x4EE5;&#x79FB;&#x9664;&#x6307;&#x5B9A;&#x7684;&#x540E;&#x7F00;&#x540D;&#x3002;&#x5B9E;&#x73B0;&#x4E5F;&#x6BD4;&#x8F83;&#x7B80;&#x5355;&#xFF0C;&#x53EF;&#x4EE5;&#x8BA4;&#x4E3A;&#x5C31;&#x662F;&#x6700;&#x57FA;&#x7840;&#x7684;&#x5B57;&#x7B26;&#x4E32;&#x7684;&#x5904;&#x7406;&#x3002;</p>
+<p>&#x5B9E;&#x73B0;</p>
+<ul>
+<li>&#x4E00;&#x4E9B;&#x901A;&#x7528;&#x7684;&#x521D;&#x59CB;&#x5316;&#x5DE5;&#x4F5C;(initialize_main, set_program_name, setlocale, bindtextdomain, textdomain, atexit)</li>
+<li><p>&#x547D;&#x4EE4;&#x884C;&#x9009;&#x9879;&#x7684;&#x5904;&#x7406;</p>
+<ol>
+<li>-s&#x53CA;&#x5B9A;&#x4E49;&#x7684;&#x540E;&#x7F00; &#x51B3;&#x5B9A;&#x662F;&#x5426;&#x53BB;&#x6389;&#x6307;&#x5B9A;&#x7684;&#x540E;&#x7F00;</li>
+<li>-a &#x662F;&#x5426;&#x5904;&#x7406;&#x591A;&#x4E2A;&#x8F93;&#x5165;</li>
+<li>-z &#x6BCF;&#x6B21;&#x8F93;&#x51FA;&#x65F6; &#x662F;&#x5426;&#x9700;&#x8981;&#x5E26;&#x6362;&#x884C;</li>
+<li><p>&#x547D;&#x4EE4;&#x884C;&#x9009;&#x9879;&#x5904;&#x7406;&#x5B8C;&#x540E;&#xFF0C;&#x83B7;&#x53D6;&#x5269;&#x4E0B;&#x7684;&#x8F93;&#x5165; &#x82E5;&#x591A;&#x4F59;1&#x4E2A;&#xFF0C;&#x5224;&#x65AD;&#x6709;-a. <strong>&#x8FD9;&#x91CC;&#x7684;&#x5B9E;&#x73B0;&#x4F3C;&#x4E4E;&#x6709;bug&#xFF0C;&#x6309;&#x7406;&#x8BF4;&#x82E5;&#x6CA1;&#x6709;-a&#xFF0C;&#x8F93;&#x5165;&#x4E24;&#x4E2A;&#x8DEF;&#x5F84;&#x4E5F;&#x5E94;&#x8BE5;&#x62A5;&#x9519;&#xFF0C;&#x4F46;&#x5176;&#x5B9E;&#x4F1A;&#x6B63;&#x5E38;&#x6267;&#x884C;&#x7B2C;&#x4E00;&#x4E2A;&#xFF0C;&#x5FFD;&#x7565;&#x7B2C;&#x4E8C;&#x4E2A;&#xFF0C;&#x53EA;&#x6709;&#x8F93;&#x5165;&gt;=3&#x4E2A;&#x65F6;&#xFF0C;&#x624D;&#x4F1A;&#x62A5;extra operand&#x9519;&#x8BEF;</strong>,&#x4F3C;&#x4E4E;&#x5E94;&#x8BE5;&#x662F; optind + 1 &amp;lt argc</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (!multiple_names &amp;&amp; optind + <span class="number">2</span> &lt; argc)</span><br><span class="line">{   </span><br><span class="line">    error (<span class="number">0</span>, <span class="number">0</span>, _(<span class="string">&quot;extra operand %s&quot;</span>), quote (argv[optind + <span class="number">2</span>]));</span><br><span class="line">        usage (EXIT_FAILURE);</span><br><span class="line">}</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+</li>
+<li><p>&#x9010;&#x4E00;&#x5904;&#x7406;&#x6BCF;&#x4E2A;&#x8F93;&#x5165; perform_basename(argv[optind], suffix, use_nuls)</p>
+<ol>
+<li>name = base_name(string)<ol>
+<li>base = last_component (name), &#x6328;&#x4E2A;&#x68C0;&#x67E5;&#xFF0C;&#x627E;&#x5230;&#x6700;&#x540E;&#x4E00;&#x4E2A;slash, &#x5C06;&#x5269;&#x4E0B;&#x7684;&#x90E8;&#x5206;&#x8FD4;&#x56DE;</li>
+<li>&#x53BB;&#x6389;&#x672B;&#x5C3E;&#x7684;slash</li>
+<li>&#x5982;&#x679C;&#x9700;&#x8981;&#x53BB;&#x6389;&#x540E;&#x7F00;&#xFF0C;&#x518D;&#x53BB;&#x6389;&#x540E;&#x7F00;</li>
+</ol>
+</li>
+</ol>
+</li>
+</ul>
+<h2 id="catc">cat.c</h2><p>&#x8FD9;&#x4E2A;&#x5BF9;&#x5E94;&#x7684;&#x5C31;&#x662F;&#x5929;&#x5929;&#x4F7F;&#x7528;&#x7684;cat&#x547D;&#x4EE4;&#x3002;&#x8FDE;&#x63A5;&#x6587;&#x4EF6;&#x5E76;&#x5728;&#x7EC8;&#x7AEF;&#x4E0A;&#x663E;&#x793A;&#x3002;&#x4F46;&#x662F;&#x5177;&#x4F53;&#x5B9E;&#x73B0;&#x7684;&#x65F6;&#x5019;&#x6709;&#x4E00;&#x4E9B;&#x7EC6;&#x8282;&#x8FD8;&#x662F;&#x503C;&#x5F97;&#x5B66;&#x4E60;&#x7684;&#x3002;</p>
+<p>&#x5B9E;&#x73B0;</p>
+<ul>
+<li>&#x901A;&#x7528;&#x7684;&#x521D;&#x59CB;&#x5316;&#x5DE5;&#x4F5C;</li>
+<li>&#x547D;&#x4EE4;&#x884C;&#x9009;&#x9879;&#x7684;&#x5904;&#x7406;<ol>
+<li>&#x662F;&#x5426;&#x663E;&#x793A;&#x884C;&#x53F7;</li>
+<li>&#x662F;&#x5426;&#x663E;&#x793A;&#x7A7A;&#x884C;&#x7684;&#x884C;&#x53F7;</li>
+<li>&#x662F;&#x5426;&#x5C06;&#x591A;&#x4E2A;&#x7A7A;&#x884C;&#x538B;&#x7F29;&#x4E3A;&#x4E00;&#x884C;</li>
+<li>&#x662F;&#x5426;&#x663E;&#x793A;&#x884C;&#x672B;</li>
+<li>&#x662F;&#x5426;&#x663E;&#x793A;&#x4E0D;&#x53EF;&#x6253;&#x5370;&#x7684;&#x5B57;&#x7B26;</li>
+<li>&#x662F;&#x5426;&#x663E;&#x793A;tab</li>
+</ol>
+</li>
+<li>&#x5BF9;&#x4E8E;&#x4E0D;&#x5E26;&#x4EFB;&#x4F55;&#x9009;&#x9879;&#x7684;&#x60C5;&#x5F62;&#xFF0C;&#x4F7F;&#x7528;simple_cat&#x76F4;&#x63A5;&#x539F;&#x6837;&#x8F93;&#x51FA;</li>
+<li>&#x5426;&#x5219;&#x5C06;&#x5404;&#x79CD;&#x9700;&#x6C42;&#x4F20;&#x5230;cat&#x51FD;&#x6570;&#xFF0C;&#x683C;&#x5F0F;&#x5316;&#x540E;&#x8F93;&#x51FA;</li>
+</ul>
+<p>&#x5B9E;&#x73B0;&#x65F6;&#xFF0C;&#x6709;&#x51E0;&#x70B9;&#x9700;&#x8981;&#x6CE8;&#x610F;&#x4E00;&#x4E0B;</p>
+<ul>
+<li>linux&#x5404;&#x79CD;&#x8BBE;&#x5907;&#xFF0C;&#x7BA1;&#x9053;&#x7B49;&#x90FD;&#x662F;&#x89C6;&#x4E3A;&#x6587;&#x4EF6;&#x7684;&#xFF0C;&#x56E0;&#x6B64;&#x6240;&#x8C13;&#x8F93;&#x51FA;&#x5176;&#x5B9E;&#x5C31;&#x662F;fread&#xFF08;&#x4ECE;&#x78C1;&#x76D8;&#x6587;&#x4EF6;&#x6216;&#x8005;&#x6807;&#x51C6;&#x8F93;&#x5165;&#xFF09;&#x4E00;&#x5757;&#x5185;&#x5BB9;&#x81F3;&#x5185;&#x5B58;(inbuf)&#xFF0C;&#x7136;&#x540E;&#x518D;&#x5C06;&#x8FD9;&#x5757;&#x5185;&#x5BB9;&#x683C;&#x5F0F;&#x5316;&#x540E;&#x653E;&#x5230;&#x4E00;&#x5757;&#x5185;&#x5B58;&#x4E0A;(outbuf)&#xFF0C;&#x6700;&#x540E;&#x6279;&#x91CF;fwrite&#x5230;&#x6587;&#x4EF6;&#xFF08;&#x7EC8;&#x7AEF;&#x5C31;&#x662F;STDOUT&#xFF09;&#x7684;&#x8FC7;&#x7A0B;</li>
+<li>&#x8BFB;&#x6587;&#x4EF6;&#x4E00;&#x822C;&#x90FD;&#x662F;&#x4E00;&#x6B21;&#x6027;&#x8BFB;&#x4E00;&#x5927;&#x5757;&#x7684;&#x5185;&#x5BB9;&#x3002;cat&#x5728;&#x5B9E;&#x73B0;&#x65F6;&#xFF0C;&#x91C7;&#x7528;&#x7684;&#x662F;&#x4E00;&#x4E2A;&#x7ECF;&#x9A8C;&#x503C;128KB,&#x8FD9;&#x4E5F;&#x662F;&#x5B9E;&#x9A8C;&#x51FA;&#x7684;&#x7ED3;&#x679C;<br>   <img src="/img/blk_rate.png" alt="block size for reading"> </li>
+<li>&#x5199;&#x5230;&#x5185;&#x5B58;&#x65F6;&#xFF0C;&#x4ECE;&#x5185;&#x5B58;&#x5206;&#x9875;&#x7684;&#x8D77;&#x59CB;&#x5199;&#xFF0C;&#x6548;&#x7387;&#x4F1A;&#x66F4;&#x9AD8;&#x4E00;&#x4E9B;&#x3002;getpagesize()&#x83B7;&#x5F97;&#x4E00;&#x4E2A;&#x5206;&#x9875;&#x7684;&#x5927;&#x5C0F;&#xFF0C;&#x4E0B;&#x9762;&#x7684;ptr_align&#x53EF;&#x4EE5;&#x4ECE;ptr&#x4F4D;&#x7F6E;&#x5F00;&#x59CB;&#x5F80;&#x540E;&#x627E;&#x5230;&#x7B2C;&#x4E00;&#x4E2A;&#x5206;&#x9875;&#x5904;&#xFF08;alignment&#x8868;&#x793A;&#x6BCF;&#x4E00;&#x4E2A;&#x5206;&#x9875;&#x5927;&#x5C0F;&#xFF0C;&#x5728;&#x6211;&#x7684;&#x7CFB;&#x7EDF;&#x4E0A;&#x662F;4KB&#xFF0C;&#x5373;4096&#x4E2A;&#x5B57;&#x8282;&#xFF09;&#x3002;&#x56E0;&#x6B64;&#x5728;&#x7533;&#x8BF7;&#x8BFB;&#x5165;&#x5185;&#x5B58;&#x65F6;&#xFF0C;&#x8003;&#x8651;&#x5230;&#x4E86;&#x504F;&#x79FB;&#xFF0C;&#x4F7F;&#x7528;&#x7684;&#x662F; 128KB + 4096  <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">inline</span> <span class="keyword">void</span> *</span><br><span class="line"><span class="title">ptr_align</span> <span class="params">(<span class="keyword">void</span> <span class="keyword">const</span> *ptr, size_t alignment)</span></span><br><span class="line"></span>{</span><br><span class="line">    <span class="keyword">char</span> <span class="keyword">const</span> *p0 = ptr;</span><br><span class="line">    <span class="keyword">char</span> <span class="keyword">const</span> *p1 = p0 + alignment - <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">return</span> (<span class="keyword">void</span> *) (p1 - (<span class="keyword">size_t</span>) p1 % alignment);</span><br><span class="line">}</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h2 id="chconc">chcon.c</h2><p>&#x8FD9;&#x662F;&#x4E00;&#x4E2A;&#x548C;<a href="selinuxproject.org">SELinux</a>&#x76F8;&#x5173;&#x7684;&#x6743;&#x9650;&#x63A7;&#x5236;&#x7684;&#x4E00;&#x4E2A;&#x547D;&#x4EE4;&#x3002;SELinux&#x53EF;&#x4EE5;&#x5BF9;&#x5E94;&#x7528;&#x7A0B;&#x5E8F;&#x7684;&#x6743;&#x9650;&#x505A;&#x66F4;&#x7CBE;&#x7EC6;&#x7684;&#x63A7;&#x5236;&#x3002;&#x5F00;&#x542F;SELinux&#x540E;&#xFF0C;&#x8FD9;&#x4E2A;&#x547D;&#x4EE4;&#x7528;&#x4E8E;&#x6539;&#x53D8;&#x6587;&#x4EF6;security context&#x3002;&#x4F46;&#x7531;&#x4E8E;&#x4E00;&#x822C;&#x673A;&#x5668;&#x90FD;&#x4E0D;&#x4F1A;&#x5F00;&#x542F;SELinux&#x529F;&#x80FD;&#xFF0C;&#x56E0;&#x6B64;&#x8FD9;&#x4E2A;&#x547D;&#x4EE4;&#x4F7F;&#x7528;&#x7684;&#x51E0;&#x7387;&#x4E5F;&#x5C31;&#x5F88;&#x5C0F;&#x3002;&#x8FD9;&#x91CC;&#x5C31;&#x76F4;&#x63A5;&#x5FFD;&#x7565;&#x4E86;&#x3002;</p>
+<h2 id="chgrpc">chgrp.c</h2><p>&#x5BF9;&#x5E94;chgrp&#x547D;&#x4EE4;&#xFF0C;&#x4F5C;&#x7528;&#x5C31;&#x662F;&#x6539;&#x53D8;&#x6587;&#x4EF6;&#x6240;&#x5C5E;&#x7684;&#x7EC4;&#x3002;</p>
+<p>&#x5177;&#x4F53;&#x5B9E;&#x73B0;&#x8FC7;&#x7A0B;&#x5982;&#x4E0B;</p>
+<ul>
+<li>&#x521D;&#x59CB;&#x5316;&#xFF0C;&#x89E3;&#x6790;&#x547D;&#x4EE4;&#x884C;&#x9009;&#x9879;</li>
+<li><p>&#x83B7;&#x5F97;&#x6587;&#x4EF6;&#x5F53;&#x524D;&#x7684;group_id&#xFF0C;&#x5E76;&#x8F6C;&#x6210;group_name</p>
+  <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">struct</span> stat ref_stats;</span><br><span class="line"><span class="keyword">if</span> (stat (reference_file, &amp;ref_stats))</span><br><span class="line">error (EXIT_FAILURE, errno, _(<span class="string">&quot;failed to get attributes of %s&quot;</span>),</span><br><span class="line">quote (reference_file));</span><br><span class="line"></span><br><span class="line">gid = ref_stats.st_gid;</span><br><span class="line">chopt.group_name = gid_to_name (ref_stats.st_gid);</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>&#x5B9E;&#x9645;&#x64CD;&#x4F5C;&#x5728;chown-core.c&#x91CC;&#x7684;chown_files&#x5B8C;&#x6210;, &#x904D;&#x5386;&#x65F6;&#xFF0C;&#x4F7F;&#x7528;&#x7684;&#x662F;FTS&#x7CFB;&#x5217;&#x7684;API&#xFF0C;&#x6CA1;&#x6709;&#x91C7;&#x7528;POSIX&#x6807;&#x51C6;&#x4E0B;&#x7684;nftw&#x90A3;&#x4E00;&#x5957;&#x3002;</p>
+</li>
+<li>POSIX&#x91CC;&#x660E;&#x660E;&#x5B9A;&#x4E49;&#x4E86;chown/lchown/fchown&#x7CFB;&#x5217;&#x51FD;&#x6570;&#x7528;&#x4E8E;&#x6539;&#x53D8;&#x6587;&#x4EF6;&#x7684;owner&#x548C;group&#xFF0C;&#x4F46;&#x662F;coreutil&#x91CC;&#x8FB9;&#x4F3C;&#x4E4E;&#x6CA1;&#x6709;&#x91C7;&#x7528;&#x8FD9;&#x5957;API, &#x800C;&#x662F;&#x8C03;&#x7528;&#x4E86;lchownat</li>
+</ul>
+<h2 id="chmodc">chmod.c</h2><p>&#x5BF9;&#x5E94;chmod&#x547D;&#x4EE4;&#xFF0C;&#x7528;&#x4E8E;&#x6539;&#x53D8;&#x6587;&#x4EF6;&#x6743;&#x9650;(R/W/X)</p>
+<p>&#x5B9E;&#x73B0;&#x5982;&#x4E0B;</p>
+<ul>
+<li>&#x521D;&#x59CB;&#x5316;&#xFF0C;&#x89E3;&#x6790;&#x547D;&#x4EE4;&#x884C;&#x9009;&#x9879;</li>
+<li>&#x6838;&#x5FC3;&#x5904;&#x7406;&#x5728;process_file(FTS *fts, FTSENT *ent)&#x91CC;&#x8FB9;</li>
+<li>&#x904D;&#x5386;&#x65F6;&#xFF0C;&#x5904;&#x7406;&#x4E00;&#x4E9B;&#x7279;&#x6B8A;&#x60C5;&#x51B5;&#xFF0C;&#x6B63;&#x5E38;&#x6587;&#x4EF6;&#xFF0C;&#x8C03;&#x7528;chmodat&#x5B8C;&#x6210;&#x5B9E;&#x9645;&#x7684;&#x64CD;&#x4F5C;</li>
+</ul>
+<h2 id="chownc">chown.c</h2><p>&#x5BF9;&#x5E94;chown&#x547D;&#x4EE4;&#xFF0C;&#x6539;&#x53D8;&#x6587;&#x4EF6;&#x6240;&#x5C5E;&#x3002;&#x8FD9;&#x4E2A;&#x548C;chgrp&#x5F88;&#x7C7B;&#x4F3C;&#x3002;&#x5E95;&#x5C42;&#x8C03;&#x7528;&#x7684;&#x51FD;&#x6570;&#x4E5F;&#x662F;&#x4E00;&#x6837;&#x7684;&#x3002;</p>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/coreutil/" rel="tag">#coreutil</a>
+          
+            <a href="/tags/linux/" rel="tag">#linux</a>
+          
+            <a href="/tags/source/" rel="tag">#source</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/09/28/coreutil-2/" rel="prev">coreutil 阅读笔记(二)</a>
+            
+          </div>
+
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/09/15/all-about-logistic/" rel="next">All about logistic regression</a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+ </div>
+
+        
+
+        
+          <div class="comments" id="comments">
+            
+              <div class="ds-thread" data-thread-key="2015/09/22/coreutil-1/"
+                   data-title="coreutil 阅读笔记(一)" data-url="http://yoursite.com/2015/09/22/coreutil-1/">
+              </div>
+            
+          </div>
+        
+      </div>
+
+      
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/img/thinking.jpg" alt="Junjie" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">Junjie</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description"></p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">9</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            
+              <span class="site-state-item-count">0</span>
+              <span class="site-state-item-name">分类</span>
+              
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">11</span>
+              <span class="site-state-item-name">标签</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="http://www.zhihu.com/people/bianjunjie" target="_blank">zhihu</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/bianjunjie" target="_blank">github</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://twitter.com/bianjunjie" target="_blank">twitter</a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+          <div class="cc-license motion-element" itemprop="license">
+            <a href="http://creativecommons.org/licenses/by-nc-sa/4.0" class="cc-opacity" target="_blank">
+              <img src="/images/cc-by-nc-sa.svg" alt="Creative Commons" />
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator"></div>
+          <div class="post-toc">
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#coreutil是什么"><span class="nav-number">1.</span> <span class="nav-text">coreutil是什么</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#准备工作"><span class="nav-number">2.</span> <span class="nav-text">准备工作</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#base64c"><span class="nav-number">3.</span> <span class="nav-text">base64.c</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#作用"><span class="nav-number">3.1.</span> <span class="nav-text">作用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#实现"><span class="nav-number">3.2.</span> <span class="nav-text">实现</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#basenamec"><span class="nav-number">4.</span> <span class="nav-text">basename.c</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#catc"><span class="nav-number">5.</span> <span class="nav-text">cat.c</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#chconc"><span class="nav-number">6.</span> <span class="nav-text">chcon.c</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#chgrpc"><span class="nav-number">7.</span> <span class="nav-text">chgrp.c</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#chmodc"><span class="nav-number">8.</span> <span class="nav-text">chmod.c</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#chownc"><span class="nav-number">9.</span> <span class="nav-text">chown.c</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator"></div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+    </main>
+
+    <!--
+    <footer id="footer" class="footer">
+      <div class="footer-inner"> <div class="copyright" >
+  
+  &copy; &nbsp; 
+  <span itemprop="copyrightYear">2015</span>
+  <span class="with-love">
+    <i class="icon-next-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Junjie</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+ </div>
+    </footer>
+    -->
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+    
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"readandthink"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+    
+     
+
+    
+  
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.1"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.1"></script>
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/js/motion_global.js?v=0.4.5.1" id="motion.global"></script>
+
+
+
+
+  <script type="text/javascript" src="/js/nav-toggle.js?v=0.4.5.1"></script>
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.1" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 0.4 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    var $tocContent = $('.post-toc-content');
+    if (isDesktop() && CONFIG.sidebar === 'post') {
+      if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+        displaySidebar();
+      }
+    }
+  });
+</script>
+
+
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      if (CONFIG.sidebar === 'always') {
+        displaySidebar();
+      }
+      if (isMobile()) {
+        FastClick.attach(document.body);
+      }
+    });
+  </script>
+
+  
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/lazyload.js"></script>
+  <script type="text/javascript">
+    $(function () {
+      $("#posts").find('img').lazyload({
+        placeholder: "/images/loading.gif",
+        effect: "fadeIn"
+      });
+    });
+  </script>
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+</body>
+</html>

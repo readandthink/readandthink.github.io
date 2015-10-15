@@ -1,0 +1,701 @@
+<!doctype html>
+<html class="theme-next use-motion theme-next-mist">
+<head>
+  
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.4.5.1"/>
+
+
+
+
+  <meta name="keywords" content="lua,programming," />
+
+
+
+
+
+  <link rel="shorticon icon" type="image/x-icon" href="/favicon.ico?v=0.4.5.1" />
+
+
+<meta name="description" content="table是lua语言里最重要的数据类型。lua里的面向对象，包管理等等都可以通过table实现。lua里有一个和table相关的一个概念叫做metatable，利用metatable，可以修改或者为某个普通table变量定义一些新的行为。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="当我们在谈论metatable(lua)，我们在谈论什么">
+<meta property="og:url" content="http://yoursite.com/2015/09/13/lua-metatable/index.html">
+<meta property="og:site_name" content="read, think, and think different">
+<meta property="og:description" content="table是lua语言里最重要的数据类型。lua里的面向对象，包管理等等都可以通过table实现。lua里有一个和table相关的一个概念叫做metatable，利用metatable，可以修改或者为某个普通table变量定义一些新的行为。">
+<meta property="og:updated_time" content="2015-09-23T10:44:55.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="当我们在谈论metatable(lua)，我们在谈论什么">
+<meta name="twitter:description" content="table是lua语言里最重要的数据类型。lua里的面向对象，包管理等等都可以通过table实现。lua里有一个和table相关的一个概念叫做metatable，利用metatable，可以修改或者为某个普通table变量定义一些新的行为。">
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'always'
+  };
+</script>
+
+  <title> 当我们在谈论metatable(lua)，我们在谈论什么 | read, think, and think different </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><h1 class="site-meta">
+  <span class="logo-line-before"><i></i></span>
+  <a href="/" class="brand" rel="start">
+      <span class="logo">
+        <i class="icon-next-logo"></i>
+      </span>
+      <span class="site-title">read, think, and think different</span>
+  </a>
+  <span class="logo-line-after"><i></i></span>
+</h1>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu menu-left">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon icon-next-home"></i> <br />
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            <i class="menu-item-icon icon-next-archives"></i> <br />
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            <i class="menu-item-icon icon-next-tags"></i> <br />
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            <i class="menu-item-icon icon-next-about"></i> <br />
+            关于
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <form class="site-search-form">
+    <input type="text" id="st-search-input" class="st-search-input st-default-search-input" />
+  </form>
+
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', 'QL2MAt1HRaYZrpVoWD5N','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content"> 
+
+  <div id="posts" class="posts-expand">
+    
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              当我们在谈论metatable(lua)，我们在谈论什么
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          发表于
+          <time itemprop="dateCreated" datetime="2015-09-13T00:25:03+08:00" content="2015-09-13">
+            2015-09-13
+          </time>
+        </span>
+
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2015/09/13/lua-metatable/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2015/09/13/lua-metatable/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><p>table&#x662F;lua&#x8BED;&#x8A00;&#x91CC;&#x6700;&#x91CD;&#x8981;&#x7684;&#x6570;&#x636E;&#x7C7B;&#x578B;&#x3002;lua&#x91CC;&#x7684;&#x9762;&#x5411;&#x5BF9;&#x8C61;&#xFF0C;&#x5305;&#x7BA1;&#x7406;&#x7B49;&#x7B49;&#x90FD;&#x53EF;&#x4EE5;&#x901A;&#x8FC7;table&#x5B9E;&#x73B0;&#x3002;lua&#x91CC;&#x6709;&#x4E00;&#x4E2A;&#x548C;table&#x76F8;&#x5173;&#x7684;&#x4E00;&#x4E2A;&#x6982;&#x5FF5;&#x53EB;&#x505A;metatable&#xFF0C;&#x5229;&#x7528;metatable&#xFF0C;&#x53EF;&#x4EE5;&#x4FEE;&#x6539;&#x6216;&#x8005;&#x4E3A;&#x67D0;&#x4E2A;&#x666E;&#x901A;table&#x53D8;&#x91CF;&#x5B9A;&#x4E49;&#x4E00;&#x4E9B;&#x65B0;&#x7684;&#x884C;&#x4E3A;&#x3002;</p>
+<a id="more"></a>
+<h2 id="&#x4EC0;&#x4E48;&#x662F;metatable">&#x4EC0;&#x4E48;&#x662F;metatable</h2><p>&#x53EF;&#x4EE5;&#x628A;metatable&#x60F3;&#x8C61;&#x4E3A;javascript&#x91CC;&#x8FB9;&#x7684;prototype, lua&#x811A;&#x672C;&#x91CC;&#x6BCF;&#x4E00;&#x4E2A;&#x53D8;&#x91CF;&#xFF08;&#x7684;&#x503C;&#xFF09;&#x90FD;&#x4F1A;&#x5173;&#x8054;&#x4E00;&#x4E2A;metatable&#xFF0C;&#x53EA;&#x6709;table&#x548C;userdata&#xFF08;&#x6CE8;&#x610F;&#x5230;lua&#x91CC;&#x4E00;&#x5171;&#x6709;&#x516B;&#x79CD;&#x53D8;&#x91CF;&#x7C7B;&#x578B;&#xFF09;&#x6BCF;&#x4E2A;&#x503C;&#x4F1A;&#x5173;&#x8054;&#x4E00;&#x4E2A;metatable&#xFF0C;&#x5176;&#x4ED6;&#x7C7B;&#x578B;&#x90FD;&#x662F;&#x6574;&#x4E2A;&#x7C7B;&#x578B;&#x5171;&#x4EAB;&#x4E00;&#x4E2A;metatable&#xFF08;&#x5373;&#x6BD4;&#x5982;&#x6240;&#x6709;&#x7684;number&#x7C7B;&#x578B;&#x7684;&#x53D8;&#x91CF;&#x5171;&#x4EAB;&#x540C;&#x4E00;&#x4E2A;metatable&#xFF0C;&#x6240;&#x6709;function&#x7C7B;&#x578B;&#x7684;&#x53D8;&#x91CF;&#x5171;&#x4EAB;&#x540C;&#x4E00;&#x4E2A;metatable&#xFF09;&#x3002;&#x53EF;&#x4EE5;&#x4F7F;&#x7528;getmetatable&#x65B9;&#x6CD5;&#xFF0C;&#x83B7;&#x53D6;&#x67D0;&#x4E2A;&#x503C;&#x7684;metatable</p>
+<figure class="highlight livescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">a,b = {}, <span class="number">1</span></span><br><span class="line"><span class="built_in">print</span><span class="function"><span class="params">(getmetatable(a))</span>  --&gt;</span> {}</span><br><span class="line"><span class="built_in">print</span><span class="function"><span class="params">(getmetatable(b))</span>  --&gt;</span> nil</span><br></pre></td></tr></table></figure>
+<p>&#x4F7F;&#x7528;setmetatable&#x6765;&#x4FEE;&#x6539;&#x67D0;&#x4E2A;&#x503C;&#x7684;metatable&#xFF0C;&#x8FD9;&#x91CC;&#x6211;&#x4EEC;&#x53EA;&#x80FD;&#x4FEE;&#x6539;table&#x7C7B;&#x578B;&#x53D8;&#x91CF;&#x7684;metatable&#xFF0C;&#x5176;&#x4ED6;&#x7C7B;&#x578B;&#x53D8;&#x91CF;&#x7684;metatable&#x53EA;&#x80FD;&#x5728;C&#x4EE3;&#x7801;&#x91CC;&#x4FEE;&#x6539;&#x3002;</p>
+<p>&#x5B9E;&#x9645;&#x4E0A;&#x901A;&#x5E38;&#x6211;&#x4EEC;&#x5728;&#x8C08;&#x8D77;metatable&#x65F6;&#xFF0C;&#x901A;&#x5E38;&#x4E5F;&#x53EA;&#x662F;&#x9488;&#x5BF9;table&#x7C7B;&#x578B;&#x7684;&#x53D8;&#x91CF;&#x3002;</p>
+<figure class="highlight livescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">a, b = {<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>}, {}</span><br><span class="line">setmetatable(a, b)</span><br><span class="line"><span class="built_in">print</span> <span class="function"><span class="params">(getmetatable(a) == b)</span>  --&gt;</span> <span class="literal">true</span></span><br><span class="line">c = {}</span><br><span class="line">setmetatable(c, b)   -- (note multiple tables can share single metatable)</span><br></pre></td></tr></table></figure>
+<h2 id="metatable&#x6709;&#x4EC0;&#x4E48;&#x7528;">metatable&#x6709;&#x4EC0;&#x4E48;&#x7528;</h2><p>&#x5728;metatable&#x4E0A;&#x5B9A;&#x4E49;&#x4E00;&#x4E9B;&#x65B9;&#x6CD5;&#xFF0C;&#x53EF;&#x4EE5;&#x6539;&#x53D8;&#x5176;&#x4E0B;&#x53D8;&#x91CF;&#x7684;&#x884C;&#x4E3A;&#xFF0C;&#x53EF;&#x4EE5;&#x88AB;&#x8BE5;metatable&#x4E0B;&#x7684;&#x53D8;&#x91CF;&#x4F7F;&#x7528;&#x3002;</p>
+<h3 id="&#x5728;table&#x4E0A;&#x5B9A;&#x4E49;&#x6570;&#x5B66;&#x8FD0;&#x7B97;">&#x5728;table&#x4E0A;&#x5B9A;&#x4E49;&#x6570;&#x5B66;&#x8FD0;&#x7B97;</h3><p>&#x5728;&#x67D0;&#x4E2A;metatable&#x4E0A;&#x5B9A;&#x4E49;&#x8FD0;&#x7B97;&#xFF0C;&#x53EF;&#x4EE5;&#x88AB;&#x5176;&#x4E0B;&#x7684;&#x6240;&#x6709;&#x53D8;&#x91CF;&#x4F7F;&#x7528;, &#x8FD9;&#x4E2A;&#x5C31;&#x7C7B;&#x4F3C;&#x4E8E;C++&#x91CC;&#x7684;&#x8FD0;&#x7B97;&#x7B26;&#x91CD;&#x8F7D;&#x6216;&#x8005;Python<br>&#x91CC;&#x4E00;&#x4E9B;&#x9B54;&#x672F;&#x65B9;&#x6CD5;&#x3002;</p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">local</span> meta = {}</span><br><span class="line">meta.__add = <span class="function"><span class="keyword">function</span> <span class="params">(t1, t2)</span></span></span><br><span class="line">    <span class="keyword">return</span> #t1 + #t2</span><br><span class="line"><span class="keyword">end</span></span><br><span class="line">a = {<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>}; <span class="built_in">setmetatable</span>(a, meta)</span><br><span class="line">b = {<span class="number">10</span>,<span class="number">20</span>}; <span class="built_in">setmetatable</span>(b, meta)</span><br><span class="line"><span class="built_in">print</span>(a+b)    <span class="comment">-- 5</span></span><br></pre></td></tr></table></figure>
+<p>&#x8FD9;&#x4E9B;&#x8FD0;&#x7B97;&#x5305;&#x62EC; __add(+), __sub(-), __mul(*), __div(/), __mod(%), __pow(^), __concat(..), __unm(&#x4F5C;&#x4E3A;&#x4E00;&#x5143;&#x8FD0;&#x7B97;&#x7B26;&#x7684;&#x8D1F;&#x53F7;-),&#x7B49;&#x7B49;&#x3002;</p>
+<h3 id="&#x5728;table&#x4E0A;&#x5B9A;&#x4E49;&#x6BD4;&#x8F83;&#x64CD;&#x4F5C;">&#x5728;table&#x4E0A;&#x5B9A;&#x4E49;&#x6BD4;&#x8F83;&#x64CD;&#x4F5C;</h3><p>&#x8FD9;&#x4E2A;&#x548C;&#x6570;&#x5B66;&#x8FD0;&#x7B97;&#x7C7B;&#x4F3C;&#xFF0C;&#x901A;&#x8FC7;&#x5143;&#x65B9;&#x6CD5;__eq(=), __lt(&lt;), __le(&lt;=) &#x5B9A;&#x4E49;&#x5404;&#x79CD;&#x6BD4;&#x8F83;&#x64CD;&#x4F5C;&#xFF0C;&#x6CE8;&#x610F;&#x8FD9;&#x91CC;&#x6CA1;&#x6709;&#x5305;&#x62EC; ~=, &gt;, &gt;=&#x3002;&#x8FD9;&#x51E0;&#x4E2A;&#x6BD4;&#x8F83;lua&#x4F1A;&#x9ED8;&#x8BA4;&#x7FFB;&#x8BD1;&#x4E3A; not __eq, not __le, not __lt</p>
+<h2 id="__tostring&#x65B9;&#x6CD5;">__tostring&#x65B9;&#x6CD5;</h2><p>&#x5728;metatable&#x4E0A;&#x5B9A;&#x4E49; __tostring&#x65B9;&#x6CD5;&#xFF0C;&#x5219;&#x5E8F;&#x5217;&#x5316;&#x65F6;&#xFF0C;&#x9ED8;&#x8BA4;&#x4F1A;&#x88AB;&#x8C03;&#x7528;&#x3002;&#x6BD4;&#x5982;&#x6CA1;&#x6709;&#x5B9A;&#x4E49;__tostring&#x65F6;&#xFF0C;print&#x4E00;&#x4E2A;table&#xFF0C;&#x9ED8;&#x8BA4;&#x53EA;&#x4F1A;&#x6253;&#x5370;table&#x7684;&#x5730;&#x5740;&#xFF0C;&#x53EF;&#x8BFB;&#x6027;&#x8F83;&#x5DEE;&#xFF0C;&#x5982;&#x679C;&#x5728;&#x5176;&#x5BF9;&#x5E94;&#x7684;&#x7684;metatable&#x4E0A;&#x5B9A;&#x4E49;__tostring&#x65B9;&#x6CD5;&#xFF0C;&#x53EF;&#x4EE5;&#x4F7F;&#x5F97;&#x8F93;&#x51FA;&#x7ED3;&#x679C;&#x66F4;&#x6709;&#x610F;&#x4E49;&#x3002;</p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">local</span> meta = {}</span><br><span class="line">meta.__tostring = <span class="function"><span class="keyword">function</span> <span class="params">(t)</span></span></span><br><span class="line">    <span class="keyword">return</span> <span class="string">&quot;{&quot;</span> .. <span class="built_in">table</span>.concat(t, <span class="string">&quot;, &quot;</span>) .. <span class="string">&quot;}&quot;</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line">a = {<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>}; <span class="built_in">setmetatable</span>(a, meta)</span><br><span class="line"><span class="built_in">print</span>(a)      <span class="comment">-- {1, 2, 3}</span></span><br></pre></td></tr></table></figure>
+<h2 id="__index&#x548C;__newindex-&#x65B9;&#x6CD5;">__index&#x548C;__newindex &#x65B9;&#x6CD5;</h2><p>&#x8FD9;&#x4E24;&#x4E2A;&#x65B9;&#x6CD5;&#x548C;table&#x53D8;&#x91CF;&#x7684;&#x6309;&#x7167;&#x67D0;&#x4E2A;key&#x8BBF;&#x95EE;&#x6216;&#x8005;&#x4FEE;&#x6539;&#x6709;&#x5173;&#x3002;&#x9ED8;&#x8BA4;&#x60C5;&#x51B5;&#x4E0B;&#xFF0C;&#x8BBF;&#x95EE;&#x67D0;&#x4E2A;table&#x53D8;&#x91CF;&#x67D0;&#x4E2A;&#x4E0D;&#x5B58;&#x5728;&#x7684;key&#x65F6;&#xFF0C;&#x4F1A;&#x8FD4;&#x56DE;nil&#xFF0C;&#x82E5;&#x5728;&#x8BE5;&#x53D8;&#x91CF;&#x7684;metatable&#x4E0A;&#x5B9A;&#x4E49;__index&#x65B9;&#x6CD5;&#xFF0C;&#x5219;&#x4F1A;&#x89E6;&#x53D1;&#x8BE5;&#x65B9;&#x6CD5;&#xFF0C;&#x6CE8;&#x610F;__index&#x65B9;&#x6CD5;&#x4EC5;&#x4F1A;&#x5728;&#x8BBF;&#x95EE;&#x4E0D;&#x5B58;&#x5728;&#x7684;key&#x65F6;&#x624D;&#x4F1A;&#x89E6;&#x53D1;&#x3002;</p>
+<p>&#x5229;&#x7528;&#x8FD9;&#x4E2A;&#x7279;&#x6027;&#xFF0C;&#x6211;&#x4EEC;&#x53EF;&#x4EE5;&#x5B9E;&#x73B0;&#x7C7B;&#x4F3C;Python&#x91CC;dict&#x7684;get&#x65B9;&#x6CD5;&#xFF0C;&#x5373;&#x7D22;&#x5F15;&#x67D0;&#x4E2A;key&#x4E0D;&#x5B58;&#x5728;&#x7684;table&#x65F6;&#xFF0C;&#x8FD4;&#x56DE;&#x4E00;&#x4E2A;&#x9ED8;&#x8BA4;&#x7684;&#x503C;&#x3002;</p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">setDefault</span><span class="params">(t, value)</span></span></span><br><span class="line">    <span class="keyword">local</span> meta = {__index = <span class="function"><span class="keyword">function</span> <span class="params">()</span></span> <span class="keyword">return</span> value <span class="keyword">end</span> }</span><br><span class="line">    <span class="built_in">setmetatable</span>(t, meta)</span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">t = {}</span><br><span class="line">setDefault(t, <span class="number">0</span>)</span><br><span class="line"><span class="built_in">print</span> (t[<span class="string">&apos;a&apos;</span>])  <span class="comment">-- 0</span></span><br><span class="line"><span class="built_in">print</span> (t[<span class="number">1</span>]  )  <span class="comment">-- 0</span></span><br></pre></td></tr></table></figure>
+<p>__newindex&#x65B9;&#x6CD5;&#xFF0C;&#x662F;&#x5F53;&#x8BD5;&#x56FE;&#x4FEE;&#x6539;&#x6216;&#x8005;&#x7ED9;&#x4E00;&#x4E2A;&#x4E0D;&#x5B58;&#x5728;key&#x503C;&#x8D4B;&#x503C;&#x65F6;&#x4F1A;&#x8C03;&#x7528;&#xFF0C;&#x6BD4;&#x5982;&#x53EF;&#x4EE5;&#x5B9E;&#x73B0;&#x8BBF;&#x95EE;&#x6743;&#x9650;&#x63A7;&#x5236;&#x6216;&#x8005;&#x5B9E;&#x73B0;&#x4E00;&#x4E2A;&#x53EA;&#x8BFB;&#x7684;table&#x7B49;&#x7B49;&#x3002;&#x5177;&#x4F53;&#x793A;&#x4F8B;&#x53EF;&#x4EE5;&#x53C2;&#x8003;PIL(Programming in Lua)&#x76F8;&#x5173;&#x5185;&#x5BB9;</p>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/lua/" rel="tag">#lua</a>
+          
+            <a href="/tags/programming/" rel="tag">#programming</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/09/15/using-strace/" rel="prev">使用strace查看系统调用情况</a>
+            
+          </div>
+
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/09/07/hello-world/" rel="next">世界，你好</a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+ </div>
+
+        
+
+        
+          <div class="comments" id="comments">
+            
+              <div class="ds-thread" data-thread-key="2015/09/13/lua-metatable/"
+                   data-title="当我们在谈论metatable(lua)，我们在谈论什么" data-url="http://yoursite.com/2015/09/13/lua-metatable/">
+              </div>
+            
+          </div>
+        
+      </div>
+
+      
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/img/thinking.jpg" alt="Junjie" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">Junjie</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description"></p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">9</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            
+              <span class="site-state-item-count">0</span>
+              <span class="site-state-item-name">分类</span>
+              
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">11</span>
+              <span class="site-state-item-name">标签</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="http://www.zhihu.com/people/bianjunjie" target="_blank">zhihu</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/bianjunjie" target="_blank">github</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://twitter.com/bianjunjie" target="_blank">twitter</a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+          <div class="cc-license motion-element" itemprop="license">
+            <a href="http://creativecommons.org/licenses/by-nc-sa/4.0" class="cc-opacity" target="_blank">
+              <img src="/images/cc-by-nc-sa.svg" alt="Creative Commons" />
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator"></div>
+          <div class="post-toc">
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#什么是metatable"><span class="nav-number">1.</span> <span class="nav-text">什么是metatable</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#metatable有什么用"><span class="nav-number">2.</span> <span class="nav-text">metatable有什么用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#在table上定义数学运算"><span class="nav-number">2.1.</span> <span class="nav-text">在table上定义数学运算</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#在table上定义比较操作"><span class="nav-number">2.2.</span> <span class="nav-text">在table上定义比较操作</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#__tostring方法"><span class="nav-number">3.</span> <span class="nav-text">__tostring方法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#__index和__newindex-方法"><span class="nav-number">4.</span> <span class="nav-text">__index和__newindex 方法</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator"></div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+    </main>
+
+    <!--
+    <footer id="footer" class="footer">
+      <div class="footer-inner"> <div class="copyright" >
+  
+  &copy; &nbsp; 
+  <span itemprop="copyrightYear">2015</span>
+  <span class="with-love">
+    <i class="icon-next-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Junjie</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+ </div>
+    </footer>
+    -->
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+    
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"readandthink"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+    
+     
+
+    
+  
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.1"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.1"></script>
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/js/motion_global.js?v=0.4.5.1" id="motion.global"></script>
+
+
+
+
+  <script type="text/javascript" src="/js/nav-toggle.js?v=0.4.5.1"></script>
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.1" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 0.4 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    var $tocContent = $('.post-toc-content');
+    if (isDesktop() && CONFIG.sidebar === 'post') {
+      if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+        displaySidebar();
+      }
+    }
+  });
+</script>
+
+
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      if (CONFIG.sidebar === 'always') {
+        displaySidebar();
+      }
+      if (isMobile()) {
+        FastClick.attach(document.body);
+      }
+    });
+  </script>
+
+  
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/lazyload.js"></script>
+  <script type="text/javascript">
+    $(function () {
+      $("#posts").find('img').lazyload({
+        placeholder: "/images/loading.gif",
+        effect: "fadeIn"
+      });
+    });
+  </script>
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+</body>
+</html>
